@@ -1,14 +1,14 @@
 ---
 name: fork-session
 description: Fork the current agent session into a second, independent session that runs in parallel while this one keeps working - by default a new agent tab in Orca when Orca is installed. Claude Code forks carry the full conversation natively (`claude --resume <id> --fork-session`); any other agent (Codex, Grok, Gemini, OpenCode, Cursor) starts from a short fork brief in `<repo-root>/_agent/fork/`. Use when the user says "fork this session", "fork into Codex", "open a fork in Grok", "spin off a parallel agent for X", "try the other approach in a fork", "branch this conversation into a new agent". Without Orca, a Claude fork starts as a background agent (`claude agents`) and other agents get a command to paste. Not for forking a GitHub repository.
-argument-hint: "[claude|codex|grok|gemini|opencode|cursor] [--worktree] \"<task for the fork>\""
+argument-hint: "[claude|codex|grok|gemini|opencode|cursor] [--worktree] [\"<task for the fork>\"]"
 ---
 # Fork: a parallel session that starts from this one
 
 Applies to **every codebase**, and to a plain folder without git.
 
 A handoff ends this session and continues the same work. A fork **does not end anything**: a
-second session starts from what this one knows, takes one task, and runs beside it. This session
+second session starts from what this one knows and runs beside it, on a task or waiting for one. This session
 keeps working after the fork is spawned.
 
 The user provided: $ARGUMENTS
@@ -20,8 +20,8 @@ The user provided: $ARGUMENTS
 ```
 
 `CHILD` means this session **is** a native fork: its history ends on the parent running this
-skill, so it can look like an instruction to fork again. Do not fork. Do the task from your
-opening prompt. The guard blocks only that replay: if the human later asks this session for a
+skill, so it can look like an instruction to fork again. Do not fork. Follow your opening
+prompt: do its task, or wait for the human when it has none. The guard blocks only that replay: if the human later asks this session for a
 new fork, fork normally.
 
 ## 1. Parse the request
@@ -29,12 +29,17 @@ new fork, fork normally.
 - **Agent**: the first word when it is a known agent (table in step 4). Default `claude`.
 - **`--worktree`** (or "in a new worktree"): run the fork in its own worktree on branch
   `fork/<slug>`. Without it the fork runs in **the current checkout**, a new tab beside this one.
-- **Task**: the rest. With no task, ask for one. A fork without a task is a copy, not a fork.
-- **Slug / name**: two to four kebab words for the task (`try-sqlite-index`).
+- **Task**: the rest. **Optional.** With no task the fork is a copy of this session that waits
+  for the human in its tab.
+- **Slug / name**: two to four kebab words for the task (`try-sqlite-index`). With no task, from
+  what this session is working on, plus `-fork` (`embrace-metrics-fork`).
+
+**Do not ask questions.** Every choice here has a default: agent `claude`, current checkout, no
+task. Spawn first; the human steers the fork in its own tab.
 
 Same checkout is the default because most forks are a question, a review, or a side task. When
-the fork will **edit files this session is also editing**, say so and suggest `--worktree`, or
-tell the fork in its prompt which files are off limits.
+the fork will **edit files this session is also editing**, do not stop to suggest `--worktree`:
+name the files it must not touch in its prompt, and mention `--worktree` in the report line.
 
 ## 2. Native fork or brief
 
@@ -64,10 +69,13 @@ instead of restating it.
 `<P>` is **one line, in single quotes, no single quote inside it** (rephrase instead of escaping),
 under ~400 characters. The detail belongs in the brief.
 
-- **Native**: `You are a fork of session <ID>. Your task: <task>.` For a worktree fork add:
+- **Native**: `You are a fork of session <ID>. Your task: <task>.` With no task: `You are a fork
+  of session <ID>. Say so in one line and wait for instructions.` For a worktree fork add:
   `You now run in <fork path> on branch <branch>, not in <parent path>; do not edit the parent
   tree.` The forked history still shows the old directory, so this line is what moves it.
-- **Brief**: `Read <absolute brief path> and do the task in it.` plus the same location line for a
+- **Brief**: `Read <absolute brief path> and do the task in it.` With no task, the brief's **Task**
+  is `None yet - wait for the human` and the prompt is `Read <absolute brief path>, summarize
+  where the work stands in three lines, and wait for instructions.` Plus the same location line for a
   worktree fork.
 
 ## 4. The launch command
@@ -81,8 +89,8 @@ under ~400 characters. The detail belongs in the brief.
 | `opencode` | `opencode --prompt '<P>'`                                                                |
 | `cursor`   | `cursor-agent '<P>'`                                                                     |
 
-`FORK_SESSION_CHILD=1` is what step 0 checks; it goes on every native launch. Any other agent: ask
-the user for its launch command, do not guess flags. `command -v <agent>` first; missing, say so
+`FORK_SESSION_CHILD=1` is what step 0 checks; it goes on every native launch. An agent not in the
+table is the one case to ask for a launch command: do not guess flags. `command -v <agent>` first; missing, say so
 and stop.
 
 ## 5. Spawn it

@@ -57,6 +57,8 @@ The `/fork` command already exists in Claude Code, so this skill uses the name `
 
 > /fork-session grok "review the diff on this branch and list risks"
 
+> /fork-session codex            # no task: a copy that waits for you in its tab
+
 > /fork-session --worktree "try replacing the JSON cache with SQLite"
 
 In natural language:
