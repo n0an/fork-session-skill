@@ -1,0 +1,8 @@
+interface:
+  display_name: "Fork Session"
+  short_description: "Forks this session into a parallel agent in its own worktree, in Claude, Codex, Grok or others."
+  brand_color: "#2D7FF9"
+  default_prompt: "Use $fork-session to fork this session into a parallel agent for a task."
+
+policy:
+  allow_implicit_invocation: false

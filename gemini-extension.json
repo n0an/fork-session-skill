@@ -1,0 +1,5 @@
+{
+  "name": "fork-session",
+  "version": "1.0.0",
+  "description": "Forks the current agent session into a parallel session in its own worktree - natively for Claude Code, through a short brief for Codex, Grok, Gemini and others"
+}

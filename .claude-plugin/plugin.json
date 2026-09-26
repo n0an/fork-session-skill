@@ -1,0 +1,14 @@
+{
+  "name": "fork-session",
+  "description": "Forks the current agent session into a parallel session in its own worktree - natively for Claude Code, through a short brief for Codex, Grok, Gemini and others",
+  "version": "1.0.0",
+  "author": {
+    "name": "Anton Novoselov",
+    "url": "https://github.com/n0an"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/n0an/fork-session-skill",
+  "skills": [
+    "./fork-session/"
+  ]
+}
